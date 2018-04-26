@@ -26,7 +26,23 @@ if (window.performance) {
     var timeOutTimer = 0;
     var timeOutTotal = 0;
     var sendTiming = false;
-
+    
+    window.addEventListener("beforeunload", function (e) {
+        // check if send already
+        if(!sendTiming){ 
+            var timeSincePageLoad = Math.round(performance.now()) - timeOutTotal;
+            
+            if (window._gat && window._gat._getTracker){
+                ga('send', 'timing', 'timeOnPage', 'load', timeSincePageLoad);
+            } else {
+                dataLayer.push({
+                    'userTimeOnPage': timeSincePageLoad
+                });
+            }
+            sendTiming = true;
+        }    
+    });
+    
     vis(function(){
         if(vis()){
         	setTimeout(function(){   
@@ -38,15 +54,6 @@ if (window.performance) {
             // start timeout  
             timeOutTimer = Math.round(performance.now());
         }
-
-        window.addEventListener("beforeunload", function (e) {
-            // check if send already
-            if(!sendTiming){ 
-                var timeSincePageLoad = Math.round(performance.now()) - timeOutTotal;
-                ga('send', 'timing', 'timeOnPage', 'load', timeSincePageLoad);
-                sendTiming = true;
-            }    
-        });
     });
 }
     
